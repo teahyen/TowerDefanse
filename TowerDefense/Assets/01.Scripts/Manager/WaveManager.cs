@@ -17,7 +17,7 @@ public class WaveManager : Singleton<WaveManager>
 
     [Header("웨이브")]
     private int _wave = 0;
-    private int Wave
+    public int Wave
     {
         get
         {
@@ -66,6 +66,11 @@ public class WaveManager : Singleton<WaveManager>
         {
             return aliveEnemies.Count != 0; // 웨이브가 진행중이면 true
         }
+    }
+
+    private void Start()
+    {
+        SetNextWave();
     }
 
     private void Update()
@@ -119,7 +124,6 @@ public class WaveManager : Singleton<WaveManager>
         if(false == IsWaveProgressing)
         {
             RecordManager.Instance.StartRecord();
-            SetNextWave();
             StartCoroutine(Spawn());
         }
     }
@@ -131,6 +135,17 @@ public class WaveManager : Singleton<WaveManager>
         {
             // 여기서 해주면 돼
             RecordManager.Instance.EndRecord();
+
+            // 웨이크 클리어 체크
+            if (Wave >= waveSO.waveEnemyInfos.Length)
+            {
+                // 오펜스 모드로 교체!
+                GameMode = eGameMode.OFFENSE;
+            }
+            else
+            {
+                SetNextWave();
+            }
         }
     }
 
@@ -191,6 +206,8 @@ public class WaveManager : Singleton<WaveManager>
                 break;
             case eGameMode.OFFENSE:
                 {
+                    Wave = 1;
+
                     GameManager.hpText = offenseHpText;
                     offenseStatus.transform.SetAsLastSibling();
                     offenseStatus.DOAnchorPos(Vector2.zero, 0.3f).SetEase(Ease.Linear);
